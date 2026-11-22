@@ -1,0 +1,49 @@
+# Initial shadow-mode CI only. This workflow is NOT the trusted final-gate.
+# Configure ci/commands.json and runtime setup before copying into .github/workflows/.
+name: Project checks
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+    types: [checks_requested]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: project/${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [format, secrets, lint, types, unit, acceptance, architecture, build, security, integration, risk-validation]
+    steps:
+      # actions/checkout v7.0.1, verified against the official release.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # Add the project's pinned language/runtime setup here, without production secrets.
+      - name: Install dependencies
+        run: python3 ci/run_check.py setup
+      - name: Run check
+        env:
+          CHECK_NAME: ${{ matrix.check }}
+        run: python3 ci/run_check.py "$CHECK_NAME"
+
+  summary:
+    name: project/summary
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [checks]
+    steps:
+      - name: Require successful matrix
+        env:
+          CHECKS_RESULT: ${{ needs.checks.result }}
+        run: test "$CHECKS_RESULT" = success

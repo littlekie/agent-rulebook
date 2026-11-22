@@ -1,0 +1,14 @@
+{
+  "setup": null,
+  "format": null,
+  "secrets": null,
+  "lint": null,
+  "types": null,
+  "unit": null,
+  "acceptance": null,
+  "architecture": null,
+  "build": null,
+  "security": null,
+  "integration": null,
+  "risk-validation": null
+}

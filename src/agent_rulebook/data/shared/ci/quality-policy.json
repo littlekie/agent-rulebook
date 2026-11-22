@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "low_risk_paths": [
+    "docs/usage/*.md",
+    "docs/usage/**/*.md"
+  ],
+  "high_risk_paths": [
+    "AGENTS.md",
+    "**/AGENTS.md",
+    "CLAUDE.md",
+    "**/CLAUDE.md",
+    "ci/*",
+    ".github/*",
+    ".gitlab-ci.yml",
+    "CODEOWNERS",
+    "docs/business/*",
+    "docs/architecture/*",
+    "tests/acceptance/*",
+    "auth/*",
+    "**/auth/*",
+    "payments/*",
+    "**/payments/*",
+    "billing/*",
+    "**/billing/*",
+    "migrations/*",
+    "**/migrations/*",
+    "REVIEW.md",
+    "**/REVIEW.md",
+    "docs/ai-governance/*"
+  ],
+  "required_checks": {
+    "L0": [
+      "format",
+      "secrets"
+    ],
+    "L1": [
+      "format",
+      "secrets",
+      "lint",
+      "types",
+      "unit",
+      "acceptance",
+      "architecture",
+      "build",
+      "security"
+    ],
+    "L2": [
+      "format",
+      "secrets",
+      "lint",
+      "types",
+      "unit",
+      "acceptance",
+      "architecture",
+      "build",
+      "security",
+      "integration",
+      "risk-validation"
+    ]
+  }
+}

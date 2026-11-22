@@ -1,0 +1,10 @@
+{
+  "name": "example-service",
+  "commands": {
+    "setup": [["npm", "ci"]],
+    "lint": [["npm", "run", "lint"]],
+    "contract-tests": [["npm", "run", "test:contracts"]]
+  },
+  "high_risk_paths": ["src/identity/*"],
+  "required_checks": {"L1": ["contract-tests"]}
+}
