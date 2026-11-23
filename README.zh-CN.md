@@ -8,20 +8,23 @@
 可用于 JavaScript、TypeScript、Java、Go、Rust、Python 等任意技术栈的项目。
 支持中英文规范、项目命令配置及风险分级。
 
-## 通过 GitHub 源码直接运行
+## 通过 npm 安装 GitHub 源码
 
 包名为 `@littlekie/agent-rulebook`，目前尚未发布到 npm 注册表。
 npm 上不带账号前缀的 `agent-rulebook` 是其他项目，请使用下面的 GitHub 地址：
 
 ```sh
-npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook init ./my-project --language zh-CN
-npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook init ./my-project --language zh-CN --apply
-npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook doctor ./my-project
+npm install --global git+https://github.com/littlekie/agent-rulebook.git
+agent-rulebook init ./my-project --language zh-CN
+agent-rulebook init ./my-project --language zh-CN --apply
+agent-rulebook doctor ./my-project
 ```
 
 Git 安装需要 Git 和网络，npm 会通过 prepare 脚本构建源码。
 需要固定版本时，在 Git URL 后加 `#已审查的提交SHA`。初始化过程本身不联网。
-第一步只预览，第二步写入，第三步检查本地配置。初始命令为 null，doctor 返回退出码 1 是预期结果。
+安装后，第一次 init 只预览，带 --apply 才写入，doctor 检查本地配置。初始命令为 null，返回退出码 1 是预期结果。
+部分 npm 10 版本无法用 npm exec 直接运行带构建步骤的 Git 依赖，请使用上述安装方式，
+或通过下方预编译的本地 tarball 使用 npx。
 
 也可以从源码打包安装：
 
@@ -32,6 +35,8 @@ npm ci
 npm pack
 npm install --global ./littlekie-agent-rulebook-0.2.0.tgz
 agent-rulebook init ../my-project --language zh-CN
+# 不全局安装，也可以通过 npx 运行本地安装包：
+npx --yes --package=./littlekie-agent-rulebook-0.2.0.tgz agent-rulebook init ../my-project --language zh-CN
 ```
 
 npm 安装包已包含所需运行代码，目标项目不需要额外安装 npm 依赖。

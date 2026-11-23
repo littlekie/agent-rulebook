@@ -13,19 +13,22 @@ Python is not required. English and Simplified Chinese templates are included.
 
 The npm package name is `@littlekie/agent-rulebook`. It has not been published to the
 npm registry yet; the unscoped `agent-rulebook` registry package is unrelated.
-Until registry publication, run this project's source through npm's Git installer:
+Until registry publication, install this project's source through npm's Git installer:
 
 ```sh
-npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook init ./my-project
-npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook init ./my-project --apply
-npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook doctor ./my-project
+npm install --global git+https://github.com/littlekie/agent-rulebook.git
+agent-rulebook init ./my-project
+agent-rulebook init ./my-project --apply
+agent-rulebook doctor ./my-project
 ```
 
 Git installation requires Git and network access and builds the TypeScript sources
 using the package's prepare script. For reproducible adoption, append `#COMMIT_SHA`
 to the Git URL with a reviewed revision. Initialization itself makes no network calls.
-The first command previews without writing; --apply creates missing files.
+The first init command previews without writing; --apply creates missing files.
 A fresh doctor run intentionally reports unconfigured checks (exit 1).
+Direct Git-URL npm exec is unreliable with some npm 10 versions; use the installation
+command above or npm exec with the prebuilt local tarball below.
 
 Or build and install a local npm tarball:
 
@@ -36,6 +39,8 @@ npm ci
 npm pack
 npm install --global ./littlekie-agent-rulebook-0.2.0.tgz
 agent-rulebook init ../my-project --language en
+# Or use the tarball through npx without a global installation:
+npx --yes --package=./littlekie-agent-rulebook-0.2.0.tgz agent-rulebook init ../my-project
 ```
 
 The packed CLI already contains its runtime code; installed tarballs and generated
