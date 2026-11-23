@@ -1,51 +1,34 @@
 # Contributing
 
-Bug reports, focused fixes, template improvements and documentation are welcome.
-For larger changes, describe the affected behavior and tradeoffs before implementation.
-Be respectful and keep reviews about evidence and code.
-
-## Local development
-
-Use Python 3.10+ and a virtual environment. The runtime and unit tests use only the
-standard library; setuptools and wheel are build dependencies.
+Use Node.js 22+ and npm with the checked-in package-lock.json. Runtime code is
+TypeScript; tests use the built-in Node test runner. The installed CLI and generated
+helpers bundle their runtime code. TypeScript, esbuild and Node type definitions are
+build dependencies; cross-spawn supports Windows command shims and is bundled with
+its transitive license notices.
 
 ```sh
-python -m venv .venv
-# Activate the environment as shown in README.md.
-python -m pip install -e .
-python -m unittest discover -s tests -v
-python scripts/check_source.py
+npm ci --ignore-scripts
+npm test
+npm run check
+npm run test:package
 ```
 
-Read AGENTS.md and docs/architecture.md. Keep filesystem ownership in filesystem.py,
-resource/config composition in templates.py and policy evaluation standalone. Preserve
-preview without writes, existing-file protection, cumulative policy requirements and
-honest doctor results. Document observable behavior changes and add meaningful tests.
-Keep English and Chinese templates aligned in safety and review semantics.
+Read AGENTS.md, docs/architecture.md and docs/migration-v0.2.md before boundary changes.
+Preserve read-only preview, exclusive creation, existing-file protection, cumulative
+risk requirements and honest doctor results. Keep templates aligned across languages.
 
-Tests use temporary repositories and synthetic evidence; those fixtures are never
-real approval or CI evidence. Symlink tests require the platform's symlink capability.
-Document any skipped check or environment limitation rather than calling it passed.
+Tests use temporary repositories and synthetic evidence, never real approvals.
+The Windows command-shim case runs on Windows; symlink tests report a skip if the
+host lacks the required privilege. Report actual results and limitations.
 
-## Pull requests
+The package smoke test packs an allowlist of files, installs the tarball offline with
+lifecycle scripts disabled, executes npm's CLI entry outside the source checkout and
+runs the generated helpers. This catches source-only installations and missing assets.
 
-Describe the problem and resulting behavior, risk, executed checks and remaining gaps.
-Filesystem writes, policy changes, review instructions and CI require review independent
-of implementation. Provide requirements and the actual diff. Keep unresolved blockers
-pending. Publishing and changes to remote protection require maintainer authorization.
+For pull requests, describe the problem, resulting behavior, compatibility, risk,
+executed checks and unresolved gaps. Filesystem writes, policy, instructions and CI
+require independent review against requirements and the actual diff. Fix supported
+blockers and recheck affected behavior. Publish only within maintainer authorization.
 
-## Package verification
-
-```sh
-python -m pip install build
-python -m build
-python scripts/smoke_wheel.py dist/agent_rulebook-0.1.0-py3-none-any.whl
-```
-
-The smoke script creates an isolated temporary environment, installs the wheel without
-network dependencies, and exercises the installed console command outside this checkout.
-Inspect both wheel and sdist contents for unwanted files. See docs/releasing.md.
-
-Contributions are distributed under the project's MIT license. Preserve attribution
-for any third-party material you propose; do not copy another project's instructions
-or proprietary project profiles without appropriate permission and attribution.
+Contributions use MIT; preserve third-party notices and keep private project material
+out of fixtures and distributions. See docs/releasing.md for registry publication.

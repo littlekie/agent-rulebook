@@ -2,7 +2,7 @@
 
 Initialization creates local files only. Model review, security services, authenticated
 evidence collection, GitHub protection and automatic merging are **not configured**.
-The bundled Python helpers require Python 3.10+; the target project may use any stack.
+The bundled Node.js helpers require Node.js 22+; the target project may use any stack.
 
 ## 1. Integrate instructions and commands
 
@@ -30,7 +30,7 @@ adapter may supply evidence for checks that cannot be performed by local command
 
 Run `agent-rulebook doctor .` to find local configuration gaps. It never executes
 commands or verifies remote enforcement. Once reviewed, explicitly run required checks
-in an appropriate environment, for example `python ci/run_check.py unit`.
+in an appropriate environment, for example `node ci/run-check.cjs unit`.
 
 ## 2. Start with ordinary CI and review reports
 
@@ -46,7 +46,7 @@ security review for concrete risks. No model service is included in the CLI.
 
 ## 3. Add a trusted controller before automatic release
 
-The standalone `ci/quality_gate.py` checks logical relationships in supplied JSON.
+The standalone `ci/quality-gate.mjs` checks logical relationships in supplied JSON.
 It does **not** authenticate evidence. Anyone can fabricate local eligible output.
 A controller must load approved policy, commands, instructions and gate code from
 outside the candidate PR; verify platform identities, complete diffs, check issuers
@@ -77,6 +77,6 @@ unauthorized approvals and pushes after result signing. Unit tests of this evalu
 do not prove platform identity, isolation or race handling. Record those integration
 results before enabling automatic release. Data migrations need data recovery plans.
 
-`quality_gate.py` takes --policy, --context and --evidence paths. Exit codes are 0 for
+`quality-gate.mjs` takes --policy, --context and --evidence paths. Exit codes are 0 for
 eligible under supplied evidence, 1 for hold and 2 for invalid input; 0 grants no merge
 permission. Generated helpers and templates are provided under the adjacent LICENSE.

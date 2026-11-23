@@ -30,7 +30,7 @@ the default profile. Unknown check names are allowed for custom checks; misspell
 required check names remain unconfigured and are reported by doctor. A configured
 command that is not required by any level is not automatically run.
 
-Paths use Python fnmatchcase semantics: case-sensitive matching against the entire
+Paths use fnmatch-style semantics: case-sensitive matching against the entire
 repository-relative POSIX string; `*` can match `/`. For example `src/identity/*` covers
 descendants, not just immediate children. There is no negation or regex support.
 High-risk patterns take precedence. Unknown paths default to L1; only the configured
@@ -39,7 +39,7 @@ usage-documentation patterns default to L0. Paths are risk floors, not semantic 
 Argument arrays use no shell expansion. `&&`, pipes, `$VAR` and globs are literal
 arguments; use separate arrays for multiple steps or an actual reviewed project script.
 Calling a shell explicitly still executes that shell: JSON is not a sandbox. Commands
-run only when you explicitly invoke `ci/run_check.py` or integrate the worker in CI.
+run only when you explicitly invoke `ci/run-check.cjs` or integrate the worker in CI.
 The worker stops on failure and allows at most 600 seconds per command.
 
 The conservative baseline includes format, secrets, lint, types, unit, acceptance,
@@ -64,8 +64,8 @@ snapshot, not proof that local files or remote checks remain authentic.
 | --- | --- | --- | --- |
 | init | Preview or apply completed | File conflicts; no planned writes | Invalid input or filesystem error |
 | doctor | Local configuration structurally valid | Missing content, proposals or unconfigured checks | Invalid/missing JSON, invalid target or unsafe path |
-| quality_gate.py | Eligible under supplied evidence | Hold | Invalid input or policy |
-| run_check.py | Command steps succeeded | Execution failed or timed out | Missing/invalid configuration |
+| quality-gate.mjs | Eligible under supplied evidence | Hold | Invalid input or policy |
+| run-check.cjs | Command steps succeeded | Execution failed or timed out | Missing/invalid configuration |
 
 Use `--json` with init or doctor for machine-readable output. Status fields do not
 grant permission to merge. Doctor does not check command availability, test coverage,

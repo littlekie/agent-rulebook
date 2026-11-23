@@ -2,39 +2,45 @@
 
 **A CLI for AI coding rules, reviews, and quality gates.**
 
-[简体中文](README.zh-CN.md) · [Configuration](docs/configuration.md) ·
-[Contributing](CONTRIBUTING.md)
+[简体中文](README.zh-CN.md) · [Configuration](docs/configuration.md) · [Migration](docs/migration-v0.2.md) · [Contributing](CONTRIBUTING.md)
 
-Give repositories a shared baseline for AI-assisted development: engineering
-instructions, independent review expectations, risk levels and configurable checks.
-Use the same tool across projects while keeping each project's commands and rules.
+Initialize shared AI development instructions, independent review expectations and
+risk-based check configuration in repositories of any programming language.
+The TypeScript CLI and standalone generated helpers require **Node.js 22+**.
+Python is not required. English and Simplified Chinese templates are included.
 
-Agent Rulebook is an early-stage, local-first Python CLI. It requires Python 3.10+
-and has no runtime dependencies or API keys. Templates are available in English and
-Simplified Chinese. It can initialize repositories using any programming language.
+## Quick start from GitHub
 
-## Quick start
+The npm package name is `@littlekie/agent-rulebook`. It has not been published to the
+npm registry yet; the unscoped `agent-rulebook` registry package is unrelated.
+Until registry publication, run this project's source through npm's Git installer:
 
-Install from this source checkout in a virtual environment:
+```sh
+npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook init ./my-project
+npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook init ./my-project --apply
+npx --yes --package=git+https://github.com/littlekie/agent-rulebook.git agent-rulebook doctor ./my-project
+```
+
+Git installation requires Git and network access and builds the TypeScript sources
+using the package's prepare script. For reproducible adoption, append `#COMMIT_SHA`
+to the Git URL with a reviewed revision. Initialization itself makes no network calls.
+The first command previews without writing; --apply creates missing files.
+A fresh doctor run intentionally reports unconfigured checks (exit 1).
+
+Or build and install a local npm tarball:
 
 ```sh
 git clone https://github.com/littlekie/agent-rulebook.git
 cd agent-rulebook
-python -m venv .venv
-# macOS / Linux:
-source .venv/bin/activate
-# Windows PowerShell instead: .venv\Scripts\Activate.ps1
-python -m pip install .
-
-agent-rulebook init ../my-project             # preview, no writes
-agent-rulebook init ../my-project --apply     # create missing files
-agent-rulebook doctor ../my-project          # report configuration gaps
+npm ci
+npm pack
+npm install --global ./littlekie-agent-rulebook-0.2.0.tgz
+agent-rulebook init ../my-project --language en
 ```
 
-A fresh installation intentionally reports unconfigured checks. Fill in real project
-commands and follow the generated setup guide. This source release does not imply
-that the unscoped package name is published on PyPI; install from source or a verified
-release wheel. `python -m agent_rulebook` is also supported.
+The packed CLI already contains its runtime code; installed tarballs and generated
+helpers need no extra npm dependencies. Windows command shims are supported through
+bundled cross-spawn, including its license notices.
 
 ## What it creates
 
@@ -46,61 +52,53 @@ docs/ai-governance/
   SETUP.md                             # CI and review integration steps
   LICENSE                              # generated materials license
 ci/
-  commands.json                        # real project commands, initially null
+  commands.json                        # actual project commands, initially null
   quality-policy.json                  # risk floors and required checks
   ai-review-prompt.md                   # structured reviewer instructions
-  quality_gate.py                       # deterministic evidence evaluator
-  run_check.py                         # explicit command worker
+  quality-gate.mjs                      # deterministic evidence evaluator
+  run-check.cjs                        # explicit command worker
   agent_rulebook.json                   # initial template inventory
   templates/github-checks.yml.example   # inactive CI example
 ```
 
-Instructions guide agents; tests and protected CI enforce checks. The CLI does not
-call a model, install a review bot, configure branch protection, approve PRs or merge.
-The evaluator requires a separate trusted evidence controller before production use.
-`doctor` checks local structure only and never executes project commands.
+Use npm/pnpm, Maven/Gradle, Go, Cargo or another toolchain in commands.json. The target
+project does not need to be a Node project. The generated worker invokes those actual
+commands; it does not install the project's toolchain or invent checks.
 
-## Designed for existing repositories
+Instructions guide agents; real tests and protected CI enforce checks. This CLI does
+not call models, configure branch protection, approve PRs or merge. The evaluator
+requires a separate trusted evidence controller before production use. Doctor validates
+local structure only and never executes target code or commands.
 
-- Preview is the default. Files are created only with `--apply`.
-- Existing AGENTS.md and REVIEW.md are preserved; differing templates become explicit
-  integration proposals under `docs/ai-governance/`.
-- Other differing files block the whole initialization. There is no overwrite flag.
-- Repeating identical inputs preserves bytes and timestamps.
-- Paths containing symlinks inside the selected target are rejected.
+## Preserve existing projects
 
-This is initialization, not an automatic updater. Review and maintain generated files
-as project-owned code. See [failure and recovery guarantees](docs/architecture.md).
+- Preview is the default; writing requires --apply.
+- Existing AGENTS.md and REVIEW.md remain unchanged. Different templates become explicit
+  integration proposals under docs/ai-governance/.
+- Other differing files block the entire initialization. There is no force-overwrite.
+- Identical inputs preserve bytes and timestamps; internal symlink paths are rejected.
+- Generated files are project-owned. This is initialization, not automatic synchronization.
 
-## Configure a project
+See [failure boundaries](docs/architecture.md) and the [Python-to-Node migration guide](docs/migration-v0.2.md).
+
+## Project configuration
 
 ```sh
-agent-rulebook init ../my-project --config examples/project.json --language zh-CN
 agent-rulebook init ../my-project --config examples/project.json --language zh-CN --apply
 ```
 
-Configuration maps check names to argument arrays and can add high-risk paths or
-required checks. It cannot remove default risk floors. Example commands are illustrative;
-replace them with commands that exist in your project. [Full configuration reference](docs/configuration.md).
+Configure real argument arrays, additional high-risk paths and cumulative required
+checks. Defaults cannot be removed by initializer configuration. Replace illustrative
+example commands with your project's own commands. [Configuration reference](docs/configuration.md).
 
-## Review by risk
-
-| Level | Typical change | Expected evidence |
+| Risk | Typical change | Evidence |
 | --- | --- | --- |
-| L0 | Approved non-behavioral documentation | Relevant checks and final self-review |
-| L1 | Ordinary logic within confirmed rules | Behavioral checks and independent review |
-| L2 | Permissions, money, migrations, core architecture or gate changes | L1 evidence, risk-specific checks and human confirmation |
+| L0 | Approved non-behavioral documentation | Relevant checks and self-review |
+| L1 | Ordinary logic within confirmed rules | Behavioral tests and independent review |
+| L2 | Permissions, funds, migrations, core architecture or gates | L1, risk-specific checks and human confirmation |
 
-One independent code reviewer is the default. Add security expertise for concrete
-risks. Multiple model votes do not replace business acceptance evidence. Actual merge
-and release permissions remain with the project. The generated policy contains a
-conservative starting matrix; review project-specific adaptations before enforcing it.
+One independent code reviewer is the default; add security expertise for concrete risks.
+Model agreement does not replace acceptance evidence. Projects retain merge/release authority.
 
-## Development and license
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for tests and packaging,
-[architecture](docs/architecture.md) for trust boundaries, and
-[SECURITY.md](SECURITY.md) for security reporting.
-
-MIT © 2026 Agent Rulebook contributors. This project is independently developed and
-is not affiliated with similarly named repositories, Vercel or any model provider.
+MIT © 2026 Agent Rulebook contributors. Independently developed; not affiliated with
+similarly named projects, Vercel or any model provider. See [SECURITY.md](SECURITY.md).

@@ -1,17 +1,20 @@
 # Architecture and decisions
 
-Agent Rulebook is a local initializer with no network access or runtime dependencies.
-The first release installs a baseline into an existing repository. It does not
+Agent Rulebook is a local initializer whose initialization makes no network calls.
+Its npm tarball bundles runtime code; Git-based installation builds via npm prepare.
+The current release installs a baseline into an existing repository. It does not
 implement a hosted review service or manage GitHub permissions.
 
 ## Module boundaries
 
-`cli` coordinates `templates` and `filesystem`. `templates` reads package resources,
+`cli` coordinates `templates` and `filesystem` in TypeScript. `templates` reads package resources,
 validates JSON configuration and calls the policy validator. `filesystem` owns
-preview, conflict detection and exclusive file creation. `policy` is a standalone
-deterministic evaluator; `runner` is a standalone command worker. Neither imports
-the CLI. The last two modules are copied into target repositories so consumers
-can run them without installing Agent Rulebook there.
+preview, conflict detection and exclusive file creation. `policy` owns deterministic evaluation, using a bounded fnmatch-style matcher.
+`json` validates duplicate keys before use. `runner` owns explicit command execution.
+None imports the CLI. esbuild bundles the CLI and the quality-gate/run-check entrypoints;
+generated workers require Node.js 22+ without installing this package in the target.
+The command worker bundles cross-spawn for Windows shims and carries dependency licenses.
+See migration-v0.2.md for the approved runtime change and existing-project integration.
 
 The target owns all generated files after initialization. There is no background
 sync, update daemon, central account or implicit migration. The inventory records
@@ -60,9 +63,12 @@ The generated workflow is an inactive example for isolated checks only.
 
 ## Validation
 
-Behavior tests cover non-destructive initialization, failure recovery, configuration
-composition, risk escalation and stale/missing evidence. Packaging validation builds
-both distribution types and installs the wheel in an isolated environment, then
-executes its console command outside the source checkout. CI exercises supported
-Python versions on Linux, Windows and macOS; configured CI is not a claim that those
-remote runs have already passed.
+Behavior tests cover file protection, failure recovery, JSON validation, cumulative
+configuration, risk escalation, stale evidence and command execution. TypeScript runs
+in strict mode. npm package tests install a packed tarball offline with scripts disabled,
+then exercise npm exec and generated workers outside the checkout. The CI matrix covers
+Node.js 22/24 across Linux, Windows and macOS. A configured workflow is not a completed run.
+
+The npm distribution allowlist excludes source tests and local artifacts. Generated
+helpers bundle any required runtime library; their third-party notices are appended at
+build time. This adds build dependencies, not installation steps in target repositories.

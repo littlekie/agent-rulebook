@@ -1,0 +1,29 @@
+{
+  "name": "@littlekie/agent-rulebook",
+  "version": "0.2.0",
+  "description": "A CLI for AI coding rules, reviews, and quality gates.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Agent Rulebook contributors",
+  "repository": {"type": "git", "url": "git+https://github.com/littlekie/agent-rulebook.git"},
+  "bugs": {"url": "https://github.com/littlekie/agent-rulebook/issues"},
+  "engines": {"node": ">=22"},
+  "bin": {"agent-rulebook": "dist/cli.mjs"},
+  "files": ["dist/cli.mjs", "dist/helpers/", "templates/", "README.zh-CN.md", "docs/configuration.md", "docs/migration-v0.2.md", "SECURITY.md"],
+  "scripts": {
+    "build": "tsc && node scripts/build.mjs",
+    "prepare": "npm run build",
+    "test": "npm run build && node --test",
+    "check": "tsc --noEmit && node scripts/check-source.mjs",
+    "test:package": "node scripts/smoke-pack.mjs"
+  },
+  "publishConfig": {"access": "public"},
+  "keywords": ["agents", "cli", "code-review", "developer-tools", "repository"],
+  "devDependencies": {
+    "@types/cross-spawn": "6.0.6",
+    "@types/node": "22.20.5",
+    "cross-spawn": "7.0.6",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  }
+}

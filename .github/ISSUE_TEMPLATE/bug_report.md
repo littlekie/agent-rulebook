@@ -13,5 +13,5 @@ example repository; exclude credentials and personal data.
 ## Environment
 
 - Agent Rulebook version:
-- Python version:
+- Node.js and npm versions:
 - Operating system:

@@ -29,13 +29,16 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      # Add the project's pinned language/runtime setup here, without production secrets.
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      # Add other project runtimes here, without production secrets.
       - name: Install dependencies
-        run: python3 ci/run_check.py setup
+        run: node ci/run-check.cjs setup
       - name: Run check
         env:
           CHECK_NAME: ${{ matrix.check }}
-        run: python3 ci/run_check.py "$CHECK_NAME"
+        run: node ci/run-check.cjs "$CHECK_NAME"
 
   summary:
     name: project/summary
