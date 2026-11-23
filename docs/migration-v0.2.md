@@ -2,6 +2,9 @@
 
 Version 0.2 replaces the Python distribution with a TypeScript CLI running on Node.js 22+.
 The command name, configuration fields, exit codes, default check matrix and risk semantics remain.
+Reversed character ranges such as `[z-a!]` are now explicitly invalid. Rewrite these
+patterns as ordinary ranges or explicit alternatives before migration; the CLI and
+evaluator reject them rather than silently interpreting a lower risk floor.
 The npm package is scoped as `@littlekie/agent-rulebook`; the unscoped package is unrelated.
 
 Existing repositories are not rewritten automatically. Create a temporary baseline with

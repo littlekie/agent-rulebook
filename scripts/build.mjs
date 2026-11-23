@@ -1,6 +1,7 @@
 import { build } from 'esbuild';
 import { appendFileSync, chmodSync, existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { readLicense } from './licenses.mjs';
 
 for (const [entry, outfile, format] of [
   ['src/cli.mts', 'dist/cli.mjs', 'esm'],
@@ -23,9 +24,7 @@ for (const [entry, outfile, format] of [
   }
   for (const directory of [...packages].sort()) {
     const metadata = JSON.parse(readFileSync(path.join(directory, 'package.json'), 'utf8'));
-    const license = ['LICENSE', 'LICENSE.md', 'LICENSE.txt'].map((name) => path.join(directory, name)).find(existsSync);
-    if (!license) throw new Error('Missing bundled license: ' + metadata.name);
-    const notice = readFileSync(license, 'utf8').replaceAll('*/', '* /');
+    const notice = readLicense(directory).replaceAll('*/', '* /');
     appendFileSync(outfile, `\n/*! ${metadata.name}@${metadata.version}\n${notice}\n*/\n`);
   }
 }

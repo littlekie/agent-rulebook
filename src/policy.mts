@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Agent Rulebook contributors. MIT license.
 // Generated copies include docs/ai-governance/LICENSE.
 import { isDeepStrictEqual } from 'node:util';
-import { globMatch } from './glob.mjs';
+import { globMatch, validateGlob } from './glob.mjs';
 import { isObject, nonempty, requireValue as need, type JsonObject } from './json.mjs';
 
 export const LEVELS = ['L0', 'L1', 'L2'] as const;
@@ -38,8 +38,11 @@ export function validateContext(value: unknown): asserts value is Context {
 }
 export function validatePolicy(value: unknown): asserts value is Policy {
   need(isObject(value) && value.version === 1, 'Unsupported policy version');
-  for (const key of ['low_risk_paths', 'high_risk_paths']) need(Array.isArray(value[key])
-    && value[key].every(nonempty), 'Invalid ' + key);
+  for (const key of ['low_risk_paths', 'high_risk_paths']) {
+    const patterns = value[key];
+    need(Array.isArray(patterns) && patterns.every(nonempty), 'Invalid ' + key);
+    patterns.forEach(validateGlob);
+  }
   const checks = value.required_checks;
   need(isObject(checks) && Object.keys(checks).length === 3
     && LEVELS.every((l) => Object.hasOwn(checks, l)), 'Invalid check matrix');

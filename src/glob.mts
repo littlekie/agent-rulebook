@@ -1,7 +1,7 @@
 // Case-sensitive fnmatch-style matching. Unlike path globs, * and ? include /.
 // A dynamic-programming matcher avoids backtracking on untrusted path patterns.
 type Token = { star: true } | { matches: (character: string) => boolean };
-export function globMatch(path: string, pattern: string): boolean {
+function tokenize(pattern: string): Token[] {
   const characters = Array.from(pattern);
   const tokens: Token[] = [];
   for (let i = 0; i < characters.length; i++) {
@@ -21,6 +21,9 @@ export function globMatch(path: string, pattern: string): boolean {
         for (let k = 0; k < values.length; k++) {
           const start = values[k]!;
           if (values[k + 1] === '-' && k + 2 < values.length) {
+            if (start.codePointAt(0)! > values[k + 2]!.codePointAt(0)!) {
+              throw new Error('Reversed character range in path pattern: ' + pattern);
+            }
             ranges.push([start, values[k + 2]!]); k += 2;
           } else ranges.push([start, start]);
         }
@@ -31,6 +34,11 @@ export function globMatch(path: string, pattern: string): boolean {
     }
     tokens.push({ matches: (v) => v === c });
   }
+  return tokens;
+}
+export function validateGlob(pattern: string): void { tokenize(pattern); }
+export function globMatch(path: string, pattern: string): boolean {
+  const tokens = tokenize(pattern);
   const input = Array.from(path);
   let row = Array<boolean>(input.length + 1).fill(false); row[0] = true;
   for (const token of tokens) {

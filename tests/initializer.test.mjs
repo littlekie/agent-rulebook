@@ -114,6 +114,12 @@ test('configuration only adds paths and cumulative requirements', (t) => {
   assert.equal(after.required_checks.L0.includes('contract'), false); assert.ok(after.required_checks.L1.includes('contract')); assert.ok(after.required_checks.L2.includes('contract'));
   assert.equal(after.required_checks.L1.includes('recovery'), false); assert.ok(after.required_checks.L2.includes('recovery'));
 });
+test('reversed range configuration is rejected before any writes', (t) => {
+  const { base, target } = workspace(t), config = path.join(base, 'config.json');
+  fs.writeFileSync(config, JSON.stringify({ high_risk_paths: ['src/[z-a!].ts'] }));
+  const result = call(base, 'init', target, '--apply', '--config', config);
+  assert.equal(result.code, 2); assert.match(result.message, /Reversed character range/); assert.equal(fs.existsSync(target), false);
+});
 for (const config of [{ low_risk_paths: ['*'] }, { name: '../bad' }, { commands: null }, { high_risk_paths: ['/x'] }, { high_risk_paths: ['a/../b'] }, { required_checks: { L3: ['a'] } }, { required_checks: { L1: ['a', 'a'] } }]) {
   test('reject invalid config ' + JSON.stringify(config), () => assert.throws(() => validateConfig(config)));
 }

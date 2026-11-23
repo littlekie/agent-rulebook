@@ -35,6 +35,8 @@ repository-relative POSIX string; `*` can match `/`. For example `src/identity/*
 descendants, not just immediate children. There is no negation or regex support.
 High-risk patterns take precedence. Unknown paths default to L1; only the configured
 usage-documentation patterns default to L0. Paths are risk floors, not semantic proof.
+Reversed character ranges such as `[z-a]` or `[z-a!]` invalidate the policy. They are
+rejected before initialization writes or evidence evaluation; see the migration guide.
 
 Argument arrays use no shell expansion. `&&`, pipes, `$VAR` and globs are literal
 arguments; use separate arrays for multiple steps or an actual reviewed project script.

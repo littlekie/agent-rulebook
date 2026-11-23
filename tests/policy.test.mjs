@@ -95,10 +95,16 @@ test('fnmatch-compatible patterns cover slash, ranges, negation and literal brac
   for (const [value, pattern, expected] of [
     ['a/b/c', 'a/*', true], ['a/b', 'a?b', true], ['a/B', 'a/b', false],
     ['a2', 'a[0-9]', true], ['aX', 'a[!0-9]', true], ['a2', 'a[!0-9]', false],
-    [']', '[]]', true], ['[', '[[]', true], ['[x', '[x', true], ['x', '[z-a]', false],
+    [']', '[]]', true], ['[', '[[]', true], ['[x', '[x', true],
     ['^', '[^]', true], ['a/b', '*b', true], ['a-b', 'a[-]b', true], ['💡', '?', true],
     ['💡', '[\uE000-💡]', true],
   ]) assert.equal(globMatch(value, pattern), expected, JSON.stringify({ value, pattern }));
+});
+test('reversed ranges invalidate the policy instead of silently lowering risk', () => {
+  for (const pattern of ['src/[z-a!].ts', 'src/[z-a].ts', 'src/[!z-a].ts']) {
+    const f = fixture(); f.policy.high_risk_paths.push(pattern);
+    assert.throws(() => evaluate(f.policy, f.context, f.evidence), /Reversed character range/);
+  }
 });
 test('strict JSON rejects nested and escaped duplicate keys and nonfinite numbers', () => {
   for (const value of ['{"a":{"x":1,"x":2}}', String.raw`{"a":1,"\u0061":2}`, '{"x":1e400}']) assert.throws(() => parseJson(value));
